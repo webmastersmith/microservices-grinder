@@ -2,6 +2,7 @@ import express, { Express, NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
 import fs from 'fs';
 import { randomBytes } from 'crypto';
+import cors from 'cors';
 
 (async function () {
   const app: Express = express();
@@ -10,7 +11,10 @@ import { randomBytes } from 'crypto';
   const comments: { [key: string]: any } = JSON.parse(
     fs.readFileSync('./comments.json', 'utf-8')
   );
+  // middleware
+  app.use(cors());
   app.use(express.json());
+
   app.get(
     '/posts/:id/comments',
     (req: Request, res: Response, next: NextFunction) => {
