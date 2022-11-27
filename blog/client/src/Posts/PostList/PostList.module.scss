@@ -1,0 +1,22 @@
+.postList {
+  width: 100%;
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+.postCard {
+  // width: 300px;
+  margin: 1rem;
+  padding: 1rem 0;
+  flex: 0 0 300px;
+  background-color: grey;
+  h2 {
+    color: blue;
+  }
+
+  &__body {
+    color: white;
+    text-align: center;
+  }
+}

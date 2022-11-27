@@ -1,18 +1,5 @@
-body {
-  min-height: auto;
-}
 #root {
-  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   // text-align: center;
 }
-.titleForm {
-  & > div {
-    margin-bottom: 0.5rem;
-  }
-  &__titleLabel {
-    display: block;
-  }
-}
-
