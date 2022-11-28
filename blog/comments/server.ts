@@ -3,6 +3,7 @@ import 'dotenv/config';
 import fs from 'fs';
 import { randomBytes } from 'crypto';
 import cors from 'cors';
+import axios from 'axios';
 
 (async function () {
   const app: Express = express();
@@ -30,7 +31,7 @@ import cors from 'cors';
 
   app.post(
     '/posts/:id/comments',
-    (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
       const { comment } = req.body;
       const { id } = req.params;
       const commentId = randomBytes(4).toString('hex');
@@ -40,8 +41,29 @@ import cors from 'cors';
         ? comments[id].push({ id: commentId, comment })
         : (comments[id] = [{ id: commentId, comment }]);
 
+      await axios
+        .post('http://localhost:4005/events', {
+          type: 'CommentCreated',
+          data: { id: commentId, comment, postId: id },
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+      console.log('comment', comments[id]);
+
       fs.writeFileSync('./comments.json', JSON.stringify(comments));
       res.status(201).json({ status: 'success', data: comments[id] });
+    }
+  );
+
+  app.post(
+    '/event',
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { type, data } = req.body;
+      if (!type || !data) return next();
+
+      console.log(`Event ${type}`);
+      res.status(201).json({});
     }
   );
 

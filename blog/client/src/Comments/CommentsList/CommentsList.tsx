@@ -13,7 +13,7 @@ export const CommentsList = ({ postId }: PostId) => {
   const [allComments, setComments] = useState<CommentType[] | []>([]);
 
   const fetchComments = async (postId: string) => {
-    const res = await fetch(`http://localhost:5000/posts/${postId}/comments`, {
+    const res = await fetch(`http://localhost:4001/posts/${postId}/comments`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

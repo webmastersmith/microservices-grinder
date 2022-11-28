@@ -3,6 +3,7 @@ import 'dotenv/config';
 import fs from 'fs';
 import { randomBytes } from 'crypto';
 import cors from 'cors';
+import axios from 'axios';
 
 (async function () {
   const app: Express = express();
@@ -31,8 +32,26 @@ import cors from 'cors';
         .json({ status: 'fail', msg: 'Post needs a title.', data: title });
 
     posts[id] = { id, title };
+    const event = {
+      type: 'PostCreated',
+      data: posts[id],
+    };
+    // send to event bus
+    axios.post('http://localhost:4005/events', event).catch((err) => {
+      console.log(err.message);
+    });
+
     fs.writeFileSync('./post.json', JSON.stringify(posts));
     res.status(201).json({ status: 'success', data: posts[id] });
+  });
+
+  app.post('/event', (req: Request, res: Response, next: NextFunction) => {
+    const { type, data } = req.body;
+    const id = randomBytes(4).toString('hex');
+    if (!type || !data) return next();
+
+    console.log(`Event ${type}`);
+    res.status(201).json({});
   });
 
   app.listen(port, () => {
