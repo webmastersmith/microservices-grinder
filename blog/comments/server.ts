@@ -4,6 +4,7 @@ import fs from 'fs';
 import { randomBytes } from 'crypto';
 import cors from 'cors';
 import axios from 'axios';
+import { CommentType, CommentEventType } from '../client/src/types/comment';
 
 (async function () {
   const app: Express = express();
@@ -35,16 +36,23 @@ import axios from 'axios';
       const { comment } = req.body;
       const { id } = req.params;
       const commentId = randomBytes(4).toString('hex');
-      if (!id || !comment) return res.status(400).json({ status: 'fail' });
+      if (!id || !comment) return res.status(200).json({ status: 'fail' });
 
-      comments[id]
-        ? comments[id].push({ id: commentId, comment })
-        : (comments[id] = [{ id: commentId, comment }]);
+      const allComments = comments[id] || [];
+      const newComment = {
+        id: commentId,
+        comment,
+        postId: id,
+        status: 'pending',
+      };
+
+      allComments.push(newComment);
+      comments[id] = allComments;
 
       await axios
         .post('http://localhost:4005/events', {
           type: 'CommentCreated',
-          data: { id: commentId, comment, postId: id },
+          data: newComment,
         })
         .catch((err) => {
           console.log(err.message);
@@ -59,11 +67,27 @@ import axios from 'axios';
   app.post(
     '/event',
     async (req: Request, res: Response, next: NextFunction) => {
-      const { type, data } = req.body;
-      if (!type || !data) return next();
+      const { type, data } = req.body as CommentEventType;
+      if (!type || !data) return res.status(200).json({});
 
-      console.log(`Event ${type}`);
-      res.status(201).json({});
+      if (type === 'CommentModerated') {
+        // find original comment and replace with updated comment.
+        const { postId, id, status } = data;
+        const allComments: CommentType[] = comments[postId];
+        const newComment = allComments.find((comment) => comment.id === id);
+        if (newComment) {
+          newComment.status = status;
+          await axios
+            .post('http://localhost:4005/events', {
+              type: 'CommentUpdated',
+              data: newComment,
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+        }
+      }
+      res.status(200).json({});
     }
   );
 

@@ -37,6 +37,9 @@ import axios from 'axios';
     axios.post('http://localhost:4002/event', event).catch((err) => {
       console.log('Event Port 4002', err.message);
     }); // query
+    axios.post('http://localhost:4003/event', event).catch((err) => {
+      console.log('Event Port 4003', err.message);
+    }); // query
 
     // fs.writeFileSync('./post.json', JSON.stringify(events));
     res.status(201).json({ status: 'success', data: event });

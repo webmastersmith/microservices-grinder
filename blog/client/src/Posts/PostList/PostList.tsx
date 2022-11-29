@@ -1,23 +1,19 @@
 import { useState, useEffect } from 'react';
 import { CommentCreate, CommentsList } from 'Comments';
 import styles from './PostList.module.scss';
-
-type Title = {
-  id: string;
-  title: string;
-};
+import { QueryType } from 'types/comment';
 
 export const PostList = () => {
-  const [posts, setPosts] = useState<Title[] | []>([]);
+  const [posts, setPosts] = useState<QueryType[] | []>([]);
   const fetchPosts = async () => {
-    const res = await fetch('http://localhost:4000/posts', {
+    const res = await fetch('http://localhost:4002/query', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     });
     console.log(res.status);
-    const data: Title[] = Object.values(await res.json());
+    const data: QueryType[] = Object.values(await res.json());
     console.log(data);
 
     setPosts(data);
@@ -39,7 +35,7 @@ export const PostList = () => {
             >
               <div className={styles.postCard__body}>
                 <h2>{post.title}</h2>
-                <CommentsList postId={post.id} />
+                <CommentsList comments={post.comments} />
                 <CommentCreate postId={post.id} />
               </div>
             </div>

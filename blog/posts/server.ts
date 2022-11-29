@@ -47,8 +47,8 @@ import axios from 'axios';
 
   app.post('/event', (req: Request, res: Response, next: NextFunction) => {
     const { type, data } = req.body;
-    const id = randomBytes(4).toString('hex');
-    if (!type || !data) return next();
+    // const id = randomBytes(4).toString('hex');
+    if (!type || !data) return res.status(200).json({});
 
     console.log(`Event ${type}`);
     res.status(201).json({});
