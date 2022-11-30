@@ -1,6 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
-import fs from 'fs';
+// import fs from 'fs';
 import { randomBytes } from 'crypto';
 import cors from 'cors';
 import axios from 'axios';
@@ -10,9 +10,7 @@ import { CommentType, CommentEventType } from '../client/src/types/comment';
   const app: Express = express();
   const port = process.env.PORT;
 
-  const comments: { [key: string]: any } = JSON.parse(
-    fs.readFileSync('./comments.json', 'utf-8')
-  );
+  const comments: { [key: string]: any } = {};
   // middleware
   app.use(cors());
   app.use(express.json());
@@ -59,7 +57,7 @@ import { CommentType, CommentEventType } from '../client/src/types/comment';
         });
       console.log('comment', comments[id]);
 
-      fs.writeFileSync('./comments.json', JSON.stringify(comments));
+      // fs.writeFileSync('./comments.json', JSON.stringify(comments));
       res.status(201).json({ status: 'success', data: comments[id] });
     }
   );

@@ -14,7 +14,7 @@ export type CommentType = {
   id: string;
   comment: string;
   postId: string;
-  status: 'rejected' | 'approved';
+  status: 'pending' | 'rejected' | 'approved';
 };
 export type CommentEventType = {
   type: string;
@@ -31,3 +31,5 @@ export type QueryEventType = {
   type: string;
   data: QueryType;
 };
+
+export type AllEventTypes = PostsEventType | CommentEventType | QueryEventType;

@@ -4,6 +4,7 @@ import 'dotenv/config';
 // import { randomBytes } from 'crypto';
 import cors from 'cors';
 import axios from 'axios';
+import { AllEventTypes } from '../client/src/types/comment';
 
 (async function () {
   const app: Express = express();
@@ -20,13 +21,19 @@ import axios from 'axios';
   // app.get('/events', (req: Request, res: Response, next: NextFunction) => {
   //   res.status(200).json(events);
   // });
+  const events: AllEventTypes[] = [];
+
+  app.get('/events', (req: Request, res: Response, next: NextFunction) => {
+    res.status(201).json({ status: 'success', data: events });
+  });
 
   app.post('/events', (req: Request, res: Response, next: NextFunction) => {
     const event = req.body;
     // const id = randomBytes(4).toString('hex');
-    console.log('event', event);
     if (!event)
       return res.status(400).json({ status: 'fail', msg: 'No Event found.' });
+    console.log('event', event);
+    events.push(event);
 
     axios.post('http://localhost:4000/event', event).catch((err) => {
       console.log('Event Port 4000', err.message);

@@ -5,6 +5,7 @@ import { stringify } from 'querystring';
 // import { randomBytes } from 'crypto';
 // import cors from 'cors';
 import axios from 'axios';
+import { CommentEventType, CommentType } from '../client/src/types/comment';
 
 (async function () {
   const app: Express = express();
@@ -22,26 +23,18 @@ import axios from 'axios';
   app.post(
     '/event',
     async (req: Request, res: Response, next: NextFunction) => {
-      type CommentType = {
-        id: string;
-        comment: string;
-        postId: string;
-        status: 'rejected' | 'approved';
-      };
-      type EventType = {
-        type: string;
-        data: CommentType;
-      };
-      const { type, data }: EventType = req.body;
+      const { type, data }: CommentEventType = req.body;
 
       if (type === 'CommentCreated') {
         const status = data.comment.includes('orange')
           ? 'rejected'
-          : ('approved' as CommentType['status']);
+          : 'approved';
+        // console.log('CommentCreated', status);
+        // console.log('CommentCreated', { ...data, status });
 
         await axios
           .post('http://localhost:4005/events', {
-            type: 'CommentModerated',
+            type: 'CommentUpdated',
             data: { ...data, status },
           })
           .catch((err) => {
