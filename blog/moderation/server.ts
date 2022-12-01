@@ -1,11 +1,10 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
-import { stringify } from 'querystring';
 // import fs from 'fs';
 // import { randomBytes } from 'crypto';
 // import cors from 'cors';
 import axios from 'axios';
-import { CommentEventType, CommentType } from '../client/src/types/comment';
+import { CommentEventType, CommentType } from './types';
 
 (async function () {
   const app: Express = express();

@@ -9,9 +9,7 @@ import axios from 'axios';
   const app: Express = express();
   const port = process.env.PORT;
 
-  const posts: { [key: string]: any } = JSON.parse(
-    fs.readFileSync('./post.json', 'utf-8')
-  );
+  const posts: { [key: string]: any } = {};
 
   // middleware
   app.use(express.json());
@@ -41,7 +39,6 @@ import axios from 'axios';
       console.log(err.message);
     });
 
-    fs.writeFileSync('./post.json', JSON.stringify(posts));
     res.status(201).json({ status: 'success', data: posts[id] });
   });
 

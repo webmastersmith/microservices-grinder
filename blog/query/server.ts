@@ -11,7 +11,7 @@ import {
   PostsEventType,
   PostsType,
   AllEventTypes,
-} from '../client/src/types/comment';
+} from './types';
 
 (async function () {
   const app: Express = express();

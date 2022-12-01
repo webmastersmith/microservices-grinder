@@ -4,7 +4,7 @@ import 'dotenv/config';
 // import { randomBytes } from 'crypto';
 import cors from 'cors';
 import axios from 'axios';
-import { AllEventTypes } from '../client/src/types/comment';
+import { AllEventTypes } from './types';
 
 (async function () {
   const app: Express = express();
