@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: posts-depl # the name kubernetes shows you: kubectl get pods
+  labels:
+    app: posts # name of pod
+spec:
+  replicas: 1
+  selector: # how to find pods to manage.
+    matchLabels: # looks at key:value pair. 'app:posts' both have to match.
+      app: posts # label of pod (spec.template.metadata.labels.app) you want replicas of.
+  template: # how kubernetes should create the pod.
+    metadata:
+      labels:
+        app: posts # all replicas label with 'app:posts'.
+    spec:
+      containers:
+      - name: posts # name of container
+        imagePullPolicy: Never # do not pull image from docker hub.
+        image: posts:0.0.1 # name of local image.
+        ports:
+        - containerPort: 4000 # connect pod port 4000 to nodePort.
+        resources: # restrict resources.
+          requests:
+            memory: "64Mi" # At least 64Mi (Mi = Megabytes, Gi = Gigabytes).
+            cpu: "250m" # "thousandth of a core" 250m/1000m = 25% of one core. 2000m is 2 cores. millicores.
+          limits:
+            memory: "128Mi" # but not more than
+            cpu: "500m" # but not more than 500m/1000m = 1/2 core.
