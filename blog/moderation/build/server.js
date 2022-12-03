@@ -14,50 +14,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 require("dotenv/config");
-// import fs from 'fs';
-const crypto_1 = require("crypto");
-const cors_1 = __importDefault(require("cors"));
 const axios_1 = __importDefault(require("axios"));
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
         const port = process.env.PORT;
         const address = process.env.NODE_ENV === 'development' ? 'localhost' : 'events-svc';
-        const posts = {};
         // middleware
         app.use(express_1.default.json());
-        app.use((0, cors_1.default)());
-        app.get('/posts', (req, res, next) => {
-            res.status(200).json(posts);
-        });
-        app.post('/posts', (req, res, next) => {
-            const { title } = req.body;
-            console.log('req.body', req.body);
-            console.log('title', title);
-            const id = (0, crypto_1.randomBytes)(4).toString('hex');
-            if (!title)
-                return res
-                    .status(400)
-                    .json({ status: 'fail', msg: 'Post needs a title.', data: title });
-            posts[id] = { id, title };
-            const event = {
-                type: 'PostCreated',
-                data: posts[id],
-            };
-            // send to event bus
-            axios_1.default.post(`http://${address}:4005/events`, event).catch((err) => {
-                console.log(err.message);
-            });
-            res.status(201).json({ status: 'success', data: posts[id] });
-        });
-        app.post('/event', (req, res, next) => {
+        // listen for event to create comments with post.
+        app.post('/event', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const { type, data } = req.body;
-            // const id = randomBytes(4).toString('hex');
-            if (!type || !data)
-                return res.status(200).json({});
-            console.log(`Event ${type}`);
+            if (type === 'CommentCreated') {
+                const status = data.comment.includes('orange')
+                    ? 'rejected'
+                    : 'approved';
+                // console.log('CommentCreated', status);
+                // console.log('CommentCreated', { ...data, status });
+                yield axios_1.default
+                    .post(`http://${address}:4005/events`, {
+                    type: 'CommentUpdated',
+                    data: Object.assign(Object.assign({}, data), { status }),
+                })
+                    .catch((err) => {
+                    console.log(err.message);
+                });
+            }
             res.status(201).json({});
-        });
+            // fs.writeFileSync('./queries.json', JSON.stringify(posts));
+            return;
+        }));
         app.listen(port, () => {
             console.log(`⚡️[server]: Server is running at http://${address}:${port}`);
         });

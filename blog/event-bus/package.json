@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "NODE_ENV=development tsc-watch --onSuccess \"node ./build/server.js\"",
     "build": "tsc -p .",
-    "prod": "NODE_ENV=production nodemon server.ts",
-    "compile": "tsc -p . && node build/server.js",
-    "dev": "nodemon -e ts --exec \"npm run compile\"",
     "start": "tsc-watch --onSuccess \"node ./build/server.js\""
   },
   "keywords": [],

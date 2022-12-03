@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moderation-depl # the name kubernetes shows you: kubectl get pods
+  labels:
+    app: moderation # name of pod
+spec:
+  replicas: 1
+  selector: # how to find pods to manage.
+    matchLabels: # looks at key:value pair. 'app:moderation' both have to match.
+      app: moderation # label of pod (spec.template.metadata.labels.app) you want replicas of.
+  template: # how kubernetes should create the pod.
+    metadata:
+      labels:
+        app: moderation # all replicas label with 'app:moderation'.
+    spec:
+      containers:
+      - name: moderation # name of container
+        # imagePullPolicy: Never # do not pull image from docker hub.
+        image: bryonsmith/moderation:latest # name of local/docker hub image.
+        ports:
+        - containerPort: 4003 # connect pod port 4000 to nodePort.
+        resources: # restrict resources.
+          requests:
+            memory: "64Mi" # At least 64Mi (Mi = Megabytes, Gi = Gigabytes).
+            cpu: "250m" # "thousandth of a core" 250m/1000m = 25% of one core. 2000m is 2 cores. millicores.
+          limits:
+            memory: "128Mi" # but not more than
+            cpu: "500m" # but not more than 500m/1000m = 1/2 core.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: moderation-svc # kubectl get service post-svc
+  # namespace: jenkins
+spec:
+  type: ClusterIP #(ClusterIP (default), NodePort, LoadBalancer)
+  selector: # Route service traffic to deployment with label key:values matching this selector.
+    app: moderation
+  ports:
+    - name: moderation
+      protocol: TCP
+      port: 4003 # port to open on node for incoming request
+      targetPort: 4003 # port to pod is listening on.
+      # nodePort:  30000 # (30000-32767) Expose the node port to the outside world.  nodePort is a static IP on the node.

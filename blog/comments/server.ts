@@ -1,6 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
-// import fs from 'fs';
 import { randomBytes } from 'crypto';
 import cors from 'cors';
 import axios from 'axios';
@@ -9,6 +8,8 @@ import { CommentType, CommentEventType } from './types';
 (async function () {
   const app: Express = express();
   const port = process.env.PORT;
+  const address =
+    process.env.NODE_ENV === 'development' ? 'localhost' : 'events-svc';
 
   const comments: { [key: string]: any } = {};
   // middleware
@@ -18,6 +19,8 @@ import { CommentType, CommentEventType } from './types';
   app.get(
     '/posts/:id/comments',
     (req: Request, res: Response, next: NextFunction) => {
+      console.log('Comments Get', req.params.id);
+
       const { id } = req.params;
       if (!id)
         return res
@@ -48,7 +51,7 @@ import { CommentType, CommentEventType } from './types';
       comments[id] = allComments;
 
       await axios
-        .post('http://localhost:4005/events', {
+        .post(`http://${address}:4005/events`, {
           type: 'CommentCreated',
           data: newComment,
         })
@@ -76,7 +79,7 @@ import { CommentType, CommentEventType } from './types';
         if (newComment) {
           newComment.status = status;
           await axios
-            .post('http://localhost:4005/events', {
+            .post(`http://${address}:4005/events`, {
               type: 'CommentUpdated',
               data: newComment,
             })
@@ -90,6 +93,6 @@ import { CommentType, CommentEventType } from './types';
   );
 
   app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    console.log(`⚡️[server]: Server is running at http://${address}:${port}`);
   });
 })();

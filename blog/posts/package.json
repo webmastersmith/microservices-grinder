@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon server.ts",
+    "dev": "NODE_ENV=development tsc-watch --onSuccess \"node ./build/server.js\"",
     "build": "tsc -p .",
-    "start": "NODE_ENV=production node build/server.js"
+    "start": "tsc-watch --onSuccess \"node ./build/server.js\""
   },
   "author": "",
   "license": "ISC",

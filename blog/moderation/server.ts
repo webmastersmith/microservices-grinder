@@ -1,22 +1,16 @@
-import express, { Express, NextFunction, Request, Response } from 'express';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
-// import fs from 'fs';
-// import { randomBytes } from 'crypto';
-// import cors from 'cors';
 import axios from 'axios';
 import { CommentEventType, CommentType } from './types';
 
 (async function () {
-  const app: Express = express();
+  const app: Application = express();
   const port = process.env.PORT;
-
-  // const posts: { [key: string]: any } = JSON.parse(
-  //   fs.readFileSync('./queries.json', 'utf-8')
-  // );
+  const address =
+    process.env.NODE_ENV === 'development' ? 'localhost' : 'events-svc';
 
   // middleware
   app.use(express.json());
-  // app.use(cors());
 
   // listen for event to create comments with post.
   app.post(
@@ -32,7 +26,7 @@ import { CommentEventType, CommentType } from './types';
         // console.log('CommentCreated', { ...data, status });
 
         await axios
-          .post('http://localhost:4005/events', {
+          .post(`http://${address}:4005/events`, {
             type: 'CommentUpdated',
             data: { ...data, status },
           })
@@ -47,6 +41,6 @@ import { CommentEventType, CommentType } from './types';
   );
 
   app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    console.log(`⚡️[server]: Server is running at http://${address}:${port}`);
   });
 })();

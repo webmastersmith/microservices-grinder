@@ -14,8 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 require("dotenv/config");
-// import fs from 'fs';
-const crypto_1 = require("crypto");
 const cors_1 = __importDefault(require("cors"));
 const axios_1 = __importDefault(require("axios"));
 (function () {
@@ -24,42 +22,58 @@ const axios_1 = __importDefault(require("axios"));
         const port = process.env.PORT;
         const address = process.env.NODE_ENV === 'development' ? 'localhost' : 'events-svc';
         const posts = {};
+        const handleEvent = (event) => {
+            const { type, data } = event;
+            if (type === 'PostCreated') {
+                const { id, title } = data;
+                posts[id] = { id, title, comments: [] };
+                return;
+            }
+            if (type === 'CommentCreated') {
+                const { postId } = data;
+                posts[postId].comments.push(data);
+                return;
+            }
+            if (type === 'CommentUpdated') {
+                const { comment, id, postId, status } = data;
+                posts[postId].comments = posts[postId].comments.map((c) => c.id === id ? { id, postId, comment, status } : c);
+                // console.log('Comment Updated', posts[postId].comments);
+                return;
+            }
+        };
         // middleware
         app.use(express_1.default.json());
         app.use((0, cors_1.default)());
-        app.get('/posts', (req, res, next) => {
+        app.get('/query', (req, res, next) => {
+            // console.log('Query Get Reg', posts);
             res.status(200).json(posts);
+            return;
         });
-        app.post('/posts', (req, res, next) => {
-            const { title } = req.body;
-            console.log('req.body', req.body);
-            console.log('title', title);
-            const id = (0, crypto_1.randomBytes)(4).toString('hex');
-            if (!title)
-                return res
-                    .status(400)
-                    .json({ status: 'fail', msg: 'Post needs a title.', data: title });
-            posts[id] = { id, title };
-            const event = {
-                type: 'PostCreated',
-                data: posts[id],
-            };
-            // send to event bus
-            axios_1.default.post(`http://${address}:4005/events`, event).catch((err) => {
-                console.log(err.message);
-            });
-            res.status(201).json({ status: 'success', data: posts[id] });
-        });
+        // listen for event to create comments with post.
         app.post('/event', (req, res, next) => {
             const { type, data } = req.body;
-            // const id = randomBytes(4).toString('hex');
             if (!type || !data)
                 return res.status(200).json({});
-            console.log(`Event ${type}`);
-            res.status(201).json({});
+            handleEvent(req.body);
+            res.status(200).json({});
         });
-        app.listen(port, () => {
+        app.listen(port, () => __awaiter(this, void 0, void 0, function* () {
             console.log(`⚡️[server]: Server is running at http://${address}:${port}`);
-        });
+            try {
+                const res = yield axios_1.default.get(`http://${address}:4005/events`);
+                for (const event of res.data.data) {
+                    console.log('Processing Event:', event.type);
+                    handleEvent(event);
+                }
+            }
+            catch (e) {
+                if (e instanceof Error) {
+                    console.log(e.message);
+                }
+                else {
+                    console.log(String(e));
+                }
+            }
+        }));
     });
 })();

@@ -22,6 +22,10 @@ const axios_1 = __importDefault(require("axios"));
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
         const port = process.env.PORT;
+        const address = process.env.NODE_ENV === 'development' ? 'localhost' : 'events-svc';
+        const addr = process.env.NODE_ENV === 'development'
+            ? ['localhost', 'localhost', 'localhost', 'localhost']
+            : ['posts-svc', 'comments-svc', 'query-svc', 'moderation-svc'];
         // const events: { [key: string]: any } = JSON.parse(
         //   fs.readFileSync('./events.json', 'utf-8')
         // );
@@ -42,23 +46,24 @@ const axios_1 = __importDefault(require("axios"));
                 return res.status(400).json({ status: 'fail', msg: 'No Event found.' });
             console.log('event', event);
             events.push(event);
-            axios_1.default.post('http://localhost:4000/event', event).catch((err) => {
-                console.log('Event Port 4000', err.message);
+            axios_1.default.post(`http://${addr[0]}:4000/event`, event).catch((err) => {
+                console.log('Posts Event Err Port 4000', err.message);
             }); // posts
-            axios_1.default.post('http://localhost:4001/event', event).catch((err) => {
-                console.log('Event Port 4001', err.message);
+            axios_1.default.post(`http://${addr[1]}:4001/event`, event).catch((err) => {
+                console.log('Comments Event Err Port 4001', err.message);
             }); // comments
-            axios_1.default.post('http://localhost:4002/event', event).catch((err) => {
-                console.log('Event Port 4002', err.message);
+            axios_1.default.post(`http://${addr[2]}:4002/event`, event).catch((err) => {
+                console.log('Query Event Err Port 4002', err.message);
             }); // query
-            axios_1.default.post('http://localhost:4003/event', event).catch((err) => {
-                console.log('Event Port 4003', err.message);
+            axios_1.default.post(`http://${addr[3]}:4003/event`, event).catch((err) => {
+                console.log('Moderation Event Err Port 4003', err.message);
             }); // query
             // fs.writeFileSync('./post.json', JSON.stringify(events));
             res.status(201).json({ status: 'success', data: event });
         });
         app.listen(port, () => {
-            console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+            console.log('version 2');
+            console.log(`⚡️[server]: Server is running at http://${address}:${port}`);
         });
     });
 })();

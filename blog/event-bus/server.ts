@@ -9,6 +9,12 @@ import { AllEventTypes } from './types';
 (async function () {
   const app: Express = express();
   const port = process.env.PORT;
+  const address =
+    process.env.NODE_ENV === 'development' ? 'localhost' : 'events-svc';
+  const addr =
+    process.env.NODE_ENV === 'development'
+      ? ['localhost', 'localhost', 'localhost', 'localhost']
+      : ['posts-svc', 'comments-svc', 'query-svc', 'moderation-svc'];
 
   // const events: { [key: string]: any } = JSON.parse(
   //   fs.readFileSync('./events.json', 'utf-8')
@@ -35,17 +41,17 @@ import { AllEventTypes } from './types';
     console.log('event', event);
     events.push(event);
 
-    axios.post('http://localhost:4000/event', event).catch((err) => {
-      console.log('Event Port 4000', err.message);
+    axios.post(`http://${addr[0]}:4000/event`, event).catch((err) => {
+      console.log('Posts Event Err Port 4000', err.message);
     }); // posts
-    axios.post('http://localhost:4001/event', event).catch((err) => {
-      console.log('Event Port 4001', err.message);
+    axios.post(`http://${addr[1]}:4001/event`, event).catch((err) => {
+      console.log('Comments Event Err Port 4001', err.message);
     }); // comments
-    axios.post('http://localhost:4002/event', event).catch((err) => {
-      console.log('Event Port 4002', err.message);
+    axios.post(`http://${addr[2]}:4002/event`, event).catch((err) => {
+      console.log('Query Event Err Port 4002', err.message);
     }); // query
-    axios.post('http://localhost:4003/event', event).catch((err) => {
-      console.log('Event Port 4003', err.message);
+    axios.post(`http://${addr[3]}:4003/event`, event).catch((err) => {
+      console.log('Moderation Event Err Port 4003', err.message);
     }); // query
 
     // fs.writeFileSync('./post.json', JSON.stringify(events));
@@ -53,6 +59,7 @@ import { AllEventTypes } from './types';
   });
 
   app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    console.log('version 2');
+    console.log(`⚡️[server]: Server is running at http://${address}:${port}`);
   });
 })();

@@ -1,7 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
-import fs from 'fs';
-// import { randomBytes } from 'crypto';
 import cors from 'cors';
 import axios from 'axios';
 import {
@@ -16,6 +14,8 @@ import {
 (async function () {
   const app: Express = express();
   const port = process.env.PORT;
+  const address =
+    process.env.NODE_ENV === 'development' ? 'localhost' : 'events-svc';
 
   const posts: { [key: string]: QueryType } = {};
 
@@ -63,10 +63,10 @@ import {
   });
 
   app.listen(port, async () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    console.log(`⚡️[server]: Server is running at http://${address}:${port}`);
     try {
       const res = await axios.get<{ data: AllEventTypes[] }>(
-        'http://localhost:4005/events'
+        `http://${address}:4005/events`
       );
 
       for (const event of res.data.data) {
