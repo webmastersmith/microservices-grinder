@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_ENV=development nodemon server.ts",
-    "prod": "NODE_ENV=production nodemon server.ts"
+    "build": "tsc -p .",
+    "start": "NODE_ENV=production node build/server.js"
   },
   "author": "",
   "license": "ISC",

@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: posts-depl # the name kubernetes shows you: kubectl get pods
+  name: events-depl # the name kubernetes shows you: kubectl get pods
   labels:
-    app: posts # name of pod
+    app: events # name of pod
 spec:
   replicas: 1
   selector: # how to find pods to manage.
-    matchLabels: # looks at key:value pair. 'app:posts' both have to match.
-      app: posts # label of pod (spec.template.metadata.labels.app) you want replicas of.
+    matchLabels: # looks at key:value pair. 'app:events' both have to match.
+      app: events # label of pod (spec.template.metadata.labels.app) you want replicas of.
   template: # how kubernetes should create the pod.
     metadata:
       labels:
-        app: posts # all replicas label with 'app:posts'.
+        app: events # all replicas label with 'app:events'.
     spec:
       containers:
-      - name: posts # name of container
+      - name: events # name of container
         # imagePullPolicy: Never # do not pull image from docker hub.
-        image: bryonsmith/posts # name of local/docker hub image.
+        image: bryonsmith/events # name of local/docker hub image.
         ports:
         - containerPort: 4000 # connect pod port 4000 to nodePort.
         resources: # restrict resources.
@@ -31,15 +31,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: posts-svc # kubectl get service post-svc
+  name: events-svc # kubectl get service post-svc
   # namespace: jenkins
 spec:
-  type: ClusterIP #(ClusterIp (default), NodePort, LoadBalancer)
+  type: ClusterIP #(ClusterIP (default), NodePort, LoadBalancer)
   selector: # Route service traffic to deployment with label key:values matching this selector.
-    app: posts
+    app: events
   ports:
-    - name: posts
+    - name: events
       protocol: TCP
-      port: 4000 # port to open on node for incoming request
-      targetPort: 4000 # port to pod is listening on.
+      port: 4005 # port to open on node for incoming request
+      targetPort: 4005 # port to pod is listening on.
       # nodePort:  30000 # (30000-32767) Expose the node port to the outside world.  nodePort is a static IP on the node.

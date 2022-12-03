@@ -1,13 +1,15 @@
-import express, { Express, NextFunction, Request, Response } from 'express';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
-import fs from 'fs';
+// import fs from 'fs';
 import { randomBytes } from 'crypto';
 import cors from 'cors';
 import axios from 'axios';
 
 (async function () {
-  const app: Express = express();
+  const app: Application = express();
   const port = process.env.PORT;
+  const address =
+    process.env.NODE_ENV === 'development' ? 'localhost' : 'events-svc';
 
   const posts: { [key: string]: any } = {};
 
@@ -35,7 +37,7 @@ import axios from 'axios';
       data: posts[id],
     };
     // send to event bus
-    axios.post('http://localhost:4005/events', event).catch((err) => {
+    axios.post(`http://${address}:4005/events`, event).catch((err) => {
       console.log(err.message);
     });
 
@@ -52,6 +54,6 @@ import axios from 'axios';
   });
 
   app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    console.log(`⚡️[server]: Server is running at http://${address}:${port}`);
   });
 })();

@@ -18,7 +18,7 @@ import { AllEventTypes } from './types';
   app.use(express.json());
   app.use(cors());
 
-  // app.get('/events', (req: Request, res: Response, next: NextFunction) => {
+  //  app.get('/events', (req: Request, res: Response, next: NextFunction) => {
   //   res.status(200).json(events);
   // });
   const events: AllEventTypes[] = [];
