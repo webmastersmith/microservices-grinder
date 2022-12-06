@@ -1,3 +1,10 @@
+FROM node:19.2-alpine as builder
+WORKDIR /app
+COPY package.json .
+RUN npm i
+COPY . .
+RUN npm run build
+
 FROM nginx:stable-alpine
 EXPOSE 80
-COPY dist /usr/share/nginx/html 
+COPY --from=builder /app/dist /usr/share/nginx/html 

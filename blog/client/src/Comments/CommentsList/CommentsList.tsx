@@ -9,7 +9,7 @@ export const CommentsList = ({ comments }: { comments: CommentType[] }) => {
           case 'approved':
             break;
           case 'rejected':
-            comment = 'This comments has been removed.';
+            comment = 'This comment has been removed!';
             break;
           default:
             comment = 'Comment pending approval';
