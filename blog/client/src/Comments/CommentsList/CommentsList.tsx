@@ -1,5 +1,5 @@
 import styles from './CommentsList.module.scss';
-import { CommentType } from 'types/comment';
+import { CommentType } from 'types/types';
 
 export const CommentsList = ({ comments }: { comments: CommentType[] }) => {
   return (

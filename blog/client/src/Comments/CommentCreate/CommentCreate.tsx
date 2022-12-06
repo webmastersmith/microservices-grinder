@@ -10,7 +10,8 @@ export const CommentCreate = ({ postId }: PostId) => {
   const handleSubmit: React.FormEventHandler = async (e) => {
     e.preventDefault();
 
-    const res = fetch(`http://localhost:4001/posts/${postId}/comments`, {
+    // const res = fetch(`http://localhost:4001/posts/${postId}/comments`, {
+    const res = fetch(`http://posts.com/posts/${postId}/comments`, {
       method: 'POST',
       body: JSON.stringify({ id: 'temp', comment }),
       headers: {

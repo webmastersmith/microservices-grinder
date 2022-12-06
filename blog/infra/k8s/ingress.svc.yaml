@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-srv
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/use-regex: 'true' # to use regex in routes.
+spec:
+  rules:
+    - host: posts.com
+      http:
+        paths:
+          - path: /posts
+            pathType: Prefix
+            backend:
+              service:
+                name: posts-svc
+                port:
+                  number: 4000
+          - path: /posts/?(.*)/comments # regex
+            pathType: Prefix
+            backend:
+              service:
+                name: comments-svc
+                port:
+                  number: 4001
+          - path: /query
+            pathType: Prefix
+            backend:
+              service:
+                name: query-svc
+                port:
+                  number: 4002
+          - path: /?(.*) # regex match all routes. must be at the bottom or routes.
+            pathType: Prefix
+            backend:
+              service:
+                name: client-svc
+                port:
+                  number: 80
+          # - path: /moderation
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: moderation-svc
+          #       port:
+          #         number: 4003
+          # - path: /events
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: events-svc
+          #       port:
+          #         number: 4005

@@ -1,0 +1,50 @@
+apiVersion: skaffold/v4beta1
+kind: Config
+metadata:
+  name: blog
+build:
+  local:
+    push: false
+  artifacts:
+    - image: bryonsmith/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
+      # custom:
+      #   buildCommand: ./build.sh client
+      # buildpacks:
+      #   builder: gcr.io/buildpacks/builder:v1
+    - image: bryonsmith/comments
+      context: comments
+    #   buildpacks:
+    #     builder: gcr.io/buildpacks/builder:v1
+    - image: bryonsmith/events
+      context: event-bus
+    #   buildpacks:
+    #     builder: gcr.io/buildpacks/builder:v1
+    - image: bryonsmith/moderation
+      context: moderation
+    #   buildpacks:
+    #     builder: gcr.io/buildpacks/builder:v1
+    - image: bryonsmith/posts
+      context: posts
+    #   buildpacks:
+    #     builder: gcr.io/buildpacks/builder:v1
+    - image: bryonsmith/query
+      context: query
+    #   buildpacks:
+    #     builder: gcr.io/buildpacks/builder:v1
+manifests:
+  rawYaml:
+    - infra/k8s/client-depl.yaml
+    - infra/k8s/comments-depl.yaml
+    - infra/k8s/events-depl.yaml
+    - infra/k8s/ingress-nginx.yaml
+    - infra/k8s/ingress.svc.yaml
+    - infra/k8s/moderation-depl.yaml
+    - infra/k8s/posts-depl.yaml
+    - infra/k8s/query-depl.yaml

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { CommentCreate, CommentsList } from 'Comments';
 import styles from './PostList.module.scss';
-import { QueryType } from 'types/comment';
+import { QueryType } from 'types/types';
 
 export const PostList = () => {
   const [posts, setPosts] = useState<QueryType[] | []>([]);
   const fetchPosts = async () => {
-    const res = await fetch('http://localhost:4002/query', {
+    // const res = await fetch('http://localhost:4002/query', {
+    const res = await fetch('http://posts.com/query', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
