@@ -1,0 +1,17 @@
+apiVersion: skaffold/v4beta1
+kind: Config
+metadata:
+  name: tickets
+build:
+  local:
+    push: false
+  artifacts:
+    - image: bryonsmith/auth
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - infra/k8s/auth-depl.yaml
+    # - infra/k8s/ingress-nginx.yaml
+    - infra/k8s/ingress.svc.yaml

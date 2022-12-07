@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-depl # the name kubernetes shows you: kubectl get pods
+  labels:
+    app: auth # name of pod
+spec:
+  replicas: 1
+  selector: # how to find pods to manage.
+    matchLabels: # looks at key:value pair. 'app:auth' both have to match.
+      app: auth # label of pod (spec.template.metadata.labels.app) you want replicas of.
+  template: # how kubernetes should create the pod.
+    metadata:
+      labels:
+        app: auth # all replicas label with 'app:auth'.
+    spec:
+      containers:
+        - name: auth # name of container
+          # imagePullPolicy: Never # do not pull image from docker hub.
+          image: bryonsmith/auth:latest # name of local/docker hub image.
+          # ports:
+          # - containerPort: 4001 # connect pod port 4000 to nodePort.
+          resources: # restrict resources.
+            requests:
+              memory: '64Mi' # At least 64Mi (Mi = Megabytes, Gi = Gigabytes).
+              cpu: '250m' # "thousandth of a core" 250m/1000m = 25% of one core. 2000m is 2 cores. millicores.
+            limits:
+              memory: '128Mi' # but not more than
+              cpu: '500m' # but not more than 500m/1000m = 1/2 core.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-svc # kubectl get service post-svc
+  # namespace: jenkins
+spec:
+  # type: ClusterIP #(ClusterIP (default), NodePort, LoadBalancer)
+  type: ClusterIP #(ClusterIP (default), NodePort, LoadBalancer)
+  selector: # Route service traffic to deployment with label key:values matching this selector.
+    app: auth
+  ports:
+    - name: auth
+      protocol: TCP
+      port: 80 # port to open on node for incoming request
+      targetPort: 4000 # port to pod is listening on.
+      # nodePort:  30000 # (30000-32767) Expose the node port to the outside world.  nodePort is a static IP on the node.
