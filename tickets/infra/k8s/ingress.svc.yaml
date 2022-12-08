@@ -8,16 +8,16 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: 'true' # to use regex in routes.
 spec:
   rules:
-    - host: tickets.com
+    - host: tickets.prod
       http:
         paths:
-          - path: /?(.*)
+          - path: /api/v[0-9]{1,3}/users/.+
             pathType: Prefix
             backend:
               service:
                 name: auth-svc
                 port:
-                  number: 80
+                  number: 4000
           # - path: /posts/?(.*)/comments # regex
           #   pathType: Prefix
           #   backend:
