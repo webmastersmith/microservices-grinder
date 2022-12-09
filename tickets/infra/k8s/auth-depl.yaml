@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: auth # name of container
-          # imagePullPolicy: Never # do not pull image from docker hub.
+          imagePullPolicy: IfNotPresent # Never
           image: bryonsmith/auth:latest # name of local/docker hub image.
           # ports:
           # - containerPort: 4001 # connect pod port 4000 to nodePort.

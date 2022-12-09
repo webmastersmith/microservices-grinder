@@ -1,11 +1,12 @@
 import express from 'express';
 import { signIn, signUp, signOut, currentUser } from './users-functions';
+import { emailPasswordValidate } from './validators';
 
 // Users
 const router = express.Router();
 // signup
 // http://tickets.prod/api/v1/users/signin
-router.route('/signin').post(signIn);
+router.route('/signin').post(emailPasswordValidate, signIn);
 // // login
 router.route('/signup').post(signUp);
 router.route('/signout').post(signOut);
