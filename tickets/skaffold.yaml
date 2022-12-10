@@ -13,5 +13,5 @@ build:
 manifests:
   rawYaml:
     - infra/k8s/auth-depl.yaml
-    # - infra/k8s/ingress-nginx.yaml
     - infra/k8s/ingress.svc.yaml
+    - infra/k8s/mongo-depl.yaml

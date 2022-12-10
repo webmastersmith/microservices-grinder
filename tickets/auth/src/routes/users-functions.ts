@@ -1,15 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
 import 'dotenv/config';
 import { validationResult, ValidationError } from 'express-validator';
-import { RequestValidationError, DatabaseError } from '../errors';
+import {
+  RequestValidationError,
+  DatabaseError,
+  httpStatusCodes,
+} from '../errors';
 
 export async function signIn(req: Request, res: Response, next: NextFunction) {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return next(new RequestValidationError(errors.array()));
-  }
+  if (!errors.isEmpty())
+    throw new RequestValidationError(
+      httpStatusCodes.BAD_REQUEST,
+      errors.array()
+    );
 
   const { email, password } = req.body;
+  // throw new DatabaseError(httpStatusCodes.BAD_REQUEST);
+  // throw new Error('my bad!');
 
   res
     .status(200)
