@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ValidationError } from 'express-validator';
+import Log from '../Library/Logging';
 
 export const httpStatusCodes = {
   OK: 200,
@@ -7,7 +8,7 @@ export const httpStatusCodes = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   INTERNAL_SERVER: 500,
-  SERVICE_UNAVAILABLE: 503,
+  SERVICE_UNAVAILABLE: 503
 };
 
 // this will keep enforcing error schema after TS is translated.
@@ -24,26 +25,20 @@ abstract class CustomError extends Error {
 }
 
 export class RequestValidationError extends CustomError {
-  constructor(
-    public statusCode: number = httpStatusCodes.BAD_REQUEST,
-    public errors: ValidationError[]
-  ) {
+  constructor(public statusCode: number = httpStatusCodes.BAD_REQUEST, public errors: ValidationError[]) {
     super('Express-Validator Error.');
   }
 
   serializeErrors() {
     return this.errors.map((e) => ({
       msg: e.msg,
-      field: e.param,
+      field: e.param
     }));
   }
 }
 
 export class DatabaseError extends CustomError {
-  constructor(
-    public err: Error,
-    public statusCode: number = httpStatusCodes.INTERNAL_SERVER
-  ) {
+  constructor(public statusCode: number = httpStatusCodes.INTERNAL_SERVER, public err?: Error) {
     super('Database Connection Error');
   }
   serializeErrors() {
@@ -51,8 +46,8 @@ export class DatabaseError extends CustomError {
       {
         msg: this.message,
         field: 'Database Error',
-        err: this.err.stack,
-      },
+        err: this.err?.stack || ''
+      }
     ];
   }
 }
@@ -64,28 +59,23 @@ export class RouteError extends CustomError {
     return [
       {
         msg: this.message,
-        field: 'Route Error',
-      },
+        field: 'Route Error'
+      }
     ];
   }
 }
 
-export const errorHandler = (
-  err: RequestValidationError | DatabaseError | Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  if (err instanceof CustomError)
-    return res.status(err.statusCode).json({ errors: err.serializeErrors() });
+export const errorHandler = (err: RequestValidationError | DatabaseError | Error, req: Request, res: Response, next: NextFunction) => {
+  Log.error(err.stack);
+  if (err instanceof CustomError) return res.status(err.statusCode).json({ errors: err.serializeErrors() });
 
   // generic error
   res.status(httpStatusCodes.BAD_REQUEST).json({
     errors: [
       {
         msg: err.message,
-        field: 'error',
-      },
-    ],
+        field: 'error'
+      }
+    ]
   });
 };

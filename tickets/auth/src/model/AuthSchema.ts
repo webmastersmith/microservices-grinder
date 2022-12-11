@@ -1,5 +1,6 @@
 import mongoose, { Schema, model, Model, QueryOptions, Types } from 'mongoose';
 import crypto from 'crypto';
+import { config } from '../config';
 
 export interface UserType {
   _id: Types.ObjectId;
@@ -22,28 +23,23 @@ const userSchema = new Schema<UserType, UserModel, UserTypeMethods>({
     unique: true,
     lowercase: true,
     maxLength: [40, 'Email cannot be over 40 characters.'],
-    minLength: [3, 'Valid email cannot be less than 3 characters.'],
+    minLength: [3, 'Valid email cannot be less than 3 characters.']
   },
   password: {
     type: String,
     required: [true, 'Password is required.'],
-    trim: true,
-    select: false,
-    maxLength: [40, 'Password cannot be over 40 characters.'],
-    minLength: [4, 'Password cannot be less than 4 characters.'],
+    select: false
   },
-  salt: String,
+  salt: String
 });
 
-export const hashPassword = async (password: string, salt: string) =>
-  crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
+export const hashPassword = async (password: string, salt: string) => crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
 
-userSchema.static('hashMyPassword', hashPassword);
+userSchema.static('hashPassword', hashPassword);
 
 userSchema.pre('save', async function (next) {
-  this.salt = crypto.randomBytes(16).toString('hex');
-  this.password = await hashPassword(this.password, this.salt);
+  this.password = await hashPassword(this.password, config.password.salt);
   return next();
 });
 
-export const User = model<UserType, UserModel>('User', userSchema);
+export const Auth = model<UserType, UserModel>('users', userSchema);

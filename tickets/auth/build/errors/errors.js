@@ -1,13 +1,17 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.errorHandler = exports.RouteError = exports.DatabaseError = exports.RequestValidationError = exports.httpStatusCodes = void 0;
+const Logging_1 = __importDefault(require("../Library/Logging"));
 exports.httpStatusCodes = {
     OK: 200,
     BAD_REQUEST: 400,
     FORBIDDEN: 403,
     NOT_FOUND: 404,
     INTERNAL_SERVER: 500,
-    SERVICE_UNAVAILABLE: 503,
+    SERVICE_UNAVAILABLE: 503
 };
 // this will keep enforcing error schema after TS is translated.
 class CustomError extends Error {
@@ -28,22 +32,25 @@ class RequestValidationError extends CustomError {
     serializeErrors() {
         return this.errors.map((e) => ({
             msg: e.msg,
-            field: e.param,
+            field: e.param
         }));
     }
 }
 exports.RequestValidationError = RequestValidationError;
 class DatabaseError extends CustomError {
-    constructor(statusCode = exports.httpStatusCodes.INTERNAL_SERVER) {
+    constructor(statusCode = exports.httpStatusCodes.INTERNAL_SERVER, err) {
         super('Database Connection Error');
         this.statusCode = statusCode;
+        this.err = err;
     }
     serializeErrors() {
+        var _a;
         return [
             {
                 msg: this.message,
                 field: 'Database Error',
-            },
+                err: ((_a = this.err) === null || _a === void 0 ? void 0 : _a.stack) || ''
+            }
         ];
     }
 }
@@ -57,13 +64,14 @@ class RouteError extends CustomError {
         return [
             {
                 msg: this.message,
-                field: 'Route Error',
-            },
+                field: 'Route Error'
+            }
         ];
     }
 }
 exports.RouteError = RouteError;
 const errorHandler = (err, req, res, next) => {
+    Logging_1.default.error(err.stack);
     if (err instanceof CustomError)
         return res.status(err.statusCode).json({ errors: err.serializeErrors() });
     // generic error
@@ -71,9 +79,9 @@ const errorHandler = (err, req, res, next) => {
         errors: [
             {
                 msg: err.message,
-                field: 'error',
-            },
-        ],
+                field: 'error'
+            }
+        ]
     });
 };
 exports.errorHandler = errorHandler;
