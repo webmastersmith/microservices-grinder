@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ValidationError } from 'express-validator';
-import Log from '../Library/Logging';
+import Log from '../library/Logging';
+import { ValidationError as JoiValidationErr } from 'joi';
 
 export const httpStatusCodes = {
   OK: 200,
@@ -36,6 +37,41 @@ export class RequestValidationError extends CustomError {
     }));
   }
 }
+export class JoiValidationError extends CustomError {
+  statusCode = httpStatusCodes.BAD_REQUEST;
+  constructor(public error: JoiValidationErr) {
+    super('Joi-Validation Error.');
+  }
+
+  // serializeErrors() {
+  //   return this.errors.map((e) => ({
+  //     msg: '',
+  //     field: ''
+  //   }));
+  // }
+  serializeErrors() {
+    return [
+      {
+        msg: this.message,
+        field: 'Database Error',
+        err: this.error
+      }
+    ];
+  }
+}
+export class AjvValidationError extends CustomError {
+  // attaches statusCode and Errors Array to error.
+  constructor(public errors: any, public statusCode: number = httpStatusCodes.BAD_REQUEST) {
+    super('Ajv-Validation Error.');
+  }
+
+  serializeErrors() {
+    return this.errors.map((e: any) => ({
+      msg: e.message,
+      field: e.params
+    }));
+  }
+}
 
 export class DatabaseError extends CustomError {
   constructor(public statusCode: number = httpStatusCodes.INTERNAL_SERVER, public err?: Error) {
@@ -65,7 +101,15 @@ export class RouteError extends CustomError {
   }
 }
 
-export const errorHandler = (err: RequestValidationError | DatabaseError | Error, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: JoiValidationError | RequestValidationError | DatabaseError | Error, req: Request, res: Response, next: NextFunction) => {
+  // if (err instanceof AjvValidationError) {
+  //   Log.error(JSON.stringify(err, null, 2));
+  //   return res.status(err.statusCode).json({ errors: err.serializeErrors() });
+  // }
+  if (err instanceof JoiValidationError) {
+    Log.error(JSON.stringify(err, null, 2));
+    return res.status(err.statusCode).json({ errors: err });
+  }
   Log.error(err.stack);
   if (err instanceof CustomError) return res.status(err.statusCode).json({ errors: err.serializeErrors() });
 

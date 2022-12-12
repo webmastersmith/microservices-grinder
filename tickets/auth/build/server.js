@@ -12,15 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.use = void 0;
 const express_1 = __importDefault(require("express"));
 require("express-async-errors");
 require("dotenv/config");
-// import morgan from 'morgan';
 const chalk_1 = __importDefault(require("chalk"));
 const users_1 = __importDefault(require("./routes/users"));
 const errors_1 = require("./errors");
 const mongoose_1 = __importDefault(require("mongoose"));
-const Logging_1 = __importDefault(require("./Library/Logging"));
+const Logging_1 = __importDefault(require("./library/Logging"));
 const config_1 = require("./config");
 const app = (0, express_1.default)();
 const port = 4000;
@@ -37,18 +37,18 @@ mongoose_1.default
     .catch((e) => {
     throw new errors_1.DatabaseError(errors_1.httpStatusCodes.BAD_REQUEST, e);
 });
+/** Try Catch Route wrapper */
+const use = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+exports.use = use;
 /** Express Rest API */
 function StartServer() {
     return __awaiter(this, void 0, void 0, function* () {
         // HOF wrapper
-        const use = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
-        // only needed for development
-        // app.use(morgan('dev'));
         app.use((req, res, next) => {
             // log incoming request.
             Logging_1.default.info(`Incoming -> Method: [${chalk_1.default.yellow(req.method)}] - Url: [${chalk_1.default.yellow(req.url)}] - IP: [${chalk_1.default.yellow(req.socket.remoteAddress)}]`);
             res.on('finish', () => {
-                // log response status
+                // log response
                 const code = res.statusCode;
                 const color = code >= 300 ? chalk_1.default.red : chalk_1.default.green;
                 Logging_1.default.info(`Outgoing -> Method: [${chalk_1.default.yellow(req.method)}] - Url: [${chalk_1.default.yellow(req.url)}] - IP: [${chalk_1.default.yellow(req.socket.remoteAddress)}] - StatusCode: [${color(res.statusCode)}]`);
@@ -69,8 +69,8 @@ function StartServer() {
         });
         /** Routes */
         // all routes use this
-        app.use('/api/v1/users', use(users_1.default));
-        /** Healthcheck */
+        app.use('/api/v1/users', (0, exports.use)(users_1.default));
+        /** HealthCheck */
         app.get('/ping', (req, res, next) => {
             res.status(200).json({ message: 'pong' });
         });

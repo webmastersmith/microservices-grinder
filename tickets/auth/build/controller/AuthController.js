@@ -14,16 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.currentUser = exports.signOut = exports.signUp = exports.signIn = void 0;
 require("dotenv/config");
-const express_validator_1 = require("express-validator");
-const errors_1 = require("../errors");
 const AuthSchema_1 = require("../model/AuthSchema");
-const Logging_1 = __importDefault(require("../Library/Logging"));
+const Logging_1 = __importDefault(require("../library/Logging"));
 function signIn(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const errors = (0, express_validator_1.validationResult)(req);
-        if (!errors.isEmpty())
-            throw new errors_1.RequestValidationError(errors_1.httpStatusCodes.BAD_REQUEST, errors.array());
+        // data is validated through mongoose.
         const { email, password } = req.body;
+        if (!email || !password)
+            throw new Error('email and password are required.');
         // throw new DatabaseError(httpStatusCodes.BAD_REQUEST);
         // throw new Error('my bad!');
         const me = yield AuthSchema_1.Auth.create({ email, password });

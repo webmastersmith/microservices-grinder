@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import 'dotenv/config';
 import { validationResult, ValidationError } from 'express-validator';
-import { RequestValidationError, DatabaseError, httpStatusCodes } from '../errors';
+import { RequestValidationError, DatabaseError, httpStatusCodes, AjvValidationError } from '../errors';
 import { Auth } from '../model/AuthSchema';
-import Log from '../Library/Logging';
+import Log from '../library/Logging';
+import { emailPassword } from '../Middleware/AJV';
 
 export async function signIn(req: Request, res: Response, next: NextFunction) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) throw new RequestValidationError(httpStatusCodes.BAD_REQUEST, errors.array());
-
+  // data is validated through mongoose.
   const { email, password } = req.body;
+  if (!email || !password) throw new Error('email and password are required.');
   // throw new DatabaseError(httpStatusCodes.BAD_REQUEST);
   // throw new Error('my bad!');
   const me = await Auth.create({ email, password });

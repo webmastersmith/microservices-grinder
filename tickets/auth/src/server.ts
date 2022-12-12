@@ -1,14 +1,12 @@
 import express, { Application, NextFunction, Request, Response, Router } from 'express';
 import 'express-async-errors';
 import 'dotenv/config';
-// import morgan from 'morgan';
 import chalk from 'chalk';
 import usersRouter from './routes/users';
 import { errorHandler, RouteError, DatabaseError, httpStatusCodes } from './errors';
 import mongoose from 'mongoose';
-import Log from './Library/Logging';
+import Log from './library/Logging';
 import { config } from './config';
-
 const app: Application = express();
 const port = 4000;
 
@@ -28,22 +26,22 @@ mongoose
     throw new DatabaseError(httpStatusCodes.BAD_REQUEST, e);
   });
 
+/** Try Catch Route wrapper */
+export const use =
+  (fn: any) =>
+  (req: Request, res: Response, next: NextFunction): Promise<Router> =>
+    Promise.resolve(fn(req, res, next)).catch(next);
+
 /** Express Rest API */
 async function StartServer() {
   // HOF wrapper
-  const use =
-    (fn: any) =>
-    (req: Request, res: Response, next: NextFunction): Promise<Router> =>
-      Promise.resolve(fn(req, res, next)).catch(next);
 
-  // only needed for development
-  // app.use(morgan('dev'));
   app.use((req, res, next) => {
     // log incoming request.
     Log.info(`Incoming -> Method: [${chalk.yellow(req.method)}] - Url: [${chalk.yellow(req.url)}] - IP: [${chalk.yellow(req.socket.remoteAddress)}]`);
 
     res.on('finish', () => {
-      // log response status
+      // log response
       const code = res.statusCode;
       const color = code >= 300 ? chalk.red : chalk.green;
       Log.info(`Outgoing -> Method: [${chalk.yellow(req.method)}] - Url: [${chalk.yellow(req.url)}] - IP: [${chalk.yellow(req.socket.remoteAddress)}] - StatusCode: [${color(res.statusCode)}]`);
@@ -70,7 +68,7 @@ async function StartServer() {
   // all routes use this
   app.use('/api/v1/users', use(usersRouter));
 
-  /** Healthcheck */
+  /** HealthCheck */
   app.get('/ping', (req, res, next) => {
     res.status(200).json({ message: 'pong' });
   });
