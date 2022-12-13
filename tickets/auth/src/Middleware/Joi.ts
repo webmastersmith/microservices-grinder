@@ -23,10 +23,14 @@ export const ValidateSchema = (schema: ObjectSchema) => {
 export const Schema = {
   user: {
     create: Joi.object<UserType>({
-      email: Joi.string().email().required(),
+      email: Joi.string().required().email(),
       password: Joi.string()
-        .regex(/^[a-zA-Z0-9]{2,5}$/i)
         .required()
+        .regex(/^[a-zA-Z0-9]{2,5}$/i)
+    }),
+    update: Joi.object<UserType>({
+      email: Joi.string().email(),
+      password: Joi.string().regex(/^[a-zA-Z0-9]{2,5}$/i)
     })
   }
 };

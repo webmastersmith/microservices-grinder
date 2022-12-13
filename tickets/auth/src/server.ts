@@ -26,15 +26,14 @@ mongoose
     throw new DatabaseError(httpStatusCodes.BAD_REQUEST, e);
   });
 
-/** Try Catch Route wrapper */
-export const use =
-  (fn: any) =>
-  (req: Request, res: Response, next: NextFunction): Promise<Router> =>
-    Promise.resolve(fn(req, res, next)).catch(next);
-
 /** Express Rest API */
 async function StartServer() {
+  /** Try Catch Route wrapper */
   // HOF wrapper
+  const use =
+    (fn: any) =>
+    (req: Request, res: Response, next: NextFunction): Promise<Router> =>
+      Promise.resolve(fn(req, res, next)).catch(next);
 
   app.use((req, res, next) => {
     // log incoming request.

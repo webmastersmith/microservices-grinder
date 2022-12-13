@@ -5,16 +5,19 @@ import validator from 'validator';
 import Log from '../library/Logging';
 
 export interface UserType {
-  _id: Types.ObjectId;
-  id: string;
+  _id?: Types.ObjectId;
+  id?: string;
   email: string;
   password: string;
 }
 
+// single document methods
 export interface UserTypeMethods {}
 
+// methods Model has
 export interface UserModel extends Model<UserType, {}, UserTypeMethods> {
   hashMyPassword: (pw: string, salt: string) => Promise<string>;
+  build(attrs: UserType): Promise<UserType>;
 }
 
 const userSchema = new Schema<UserType, UserModel, UserTypeMethods>({
@@ -33,9 +36,9 @@ const userSchema = new Schema<UserType, UserModel, UserTypeMethods>({
   password: {
     type: String,
     required: [true, 'Password is required.'],
-    select: false,
-    minLength: [2, 'Password needs to longer than 2 characters'],
-    maxLength: [4, 'Password needs to shorter than 5 characters']
+    select: false
+    // minLength: [2, 'Password needs to longer than 2 characters'],
+    // maxLength: [4, 'Password needs to shorter than 5 characters']
     // validate: {
     //   validator: function (val: string) {
     //     Log.warn(`password this ${this}`);
@@ -51,6 +54,9 @@ const userSchema = new Schema<UserType, UserModel, UserTypeMethods>({
 export const hashPassword = async (password: string, salt: string) => crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
 
 userSchema.static('hashPassword', hashPassword);
+
+// create user with typescript validation.
+userSchema.static('build', (attrs: UserType) => new Auth(attrs));
 
 userSchema.pre('save', async function (next) {
   this.password = await hashPassword(this.password, config.password.salt);

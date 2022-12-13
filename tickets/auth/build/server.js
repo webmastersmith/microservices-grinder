@@ -12,7 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.use = void 0;
 const express_1 = __importDefault(require("express"));
 require("express-async-errors");
 require("dotenv/config");
@@ -37,13 +36,12 @@ mongoose_1.default
     .catch((e) => {
     throw new errors_1.DatabaseError(errors_1.httpStatusCodes.BAD_REQUEST, e);
 });
-/** Try Catch Route wrapper */
-const use = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
-exports.use = use;
 /** Express Rest API */
 function StartServer() {
     return __awaiter(this, void 0, void 0, function* () {
+        /** Try Catch Route wrapper */
         // HOF wrapper
+        const use = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
         app.use((req, res, next) => {
             // log incoming request.
             Logging_1.default.info(`Incoming -> Method: [${chalk_1.default.yellow(req.method)}] - Url: [${chalk_1.default.yellow(req.url)}] - IP: [${chalk_1.default.yellow(req.socket.remoteAddress)}]`);
@@ -69,7 +67,7 @@ function StartServer() {
         });
         /** Routes */
         // all routes use this
-        app.use('/api/v1/users', (0, exports.use)(users_1.default));
+        app.use('/api/v1/users', use(users_1.default));
         /** HealthCheck */
         app.get('/ping', (req, res, next) => {
             res.status(200).json({ message: 'pong' });

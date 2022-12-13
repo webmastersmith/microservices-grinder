@@ -57,10 +57,14 @@ exports.ValidateSchema = ValidateSchema;
 exports.Schema = {
     user: {
         create: joi_1.default.object({
-            email: joi_1.default.string().email().required(),
+            email: joi_1.default.string().required().email(),
             password: joi_1.default.string()
-                .regex(/^[a-zA-Z0-9]{2,5}$/i)
                 .required()
+                .regex(/^[a-zA-Z0-9]{2,5}$/i)
+        }),
+        update: joi_1.default.object({
+            email: joi_1.default.string().email(),
+            password: joi_1.default.string().regex(/^[a-zA-Z0-9]{2,5}$/i)
         })
     }
 };

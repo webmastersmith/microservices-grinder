@@ -12,7 +12,8 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
   if (!email || !password) throw new Error('email and password are required.');
   // throw new DatabaseError(httpStatusCodes.BAD_REQUEST);
   // throw new Error('my bad!');
-  const me = await Auth.create({ email, password });
+  const me = await Auth.build({ email, password });
+  // const me2 = await CreateUser({ email, password }).save();
   Log.info(me);
 
   res.status(200).json({ data: { email, password }, msg: 'Email Password Success!' });

@@ -32,9 +32,9 @@ const userSchema = new mongoose_1.Schema({
     password: {
         type: String,
         required: [true, 'Password is required.'],
-        select: false,
-        minLength: [2, 'Password needs to longer than 2 characters'],
-        maxLength: [4, 'Password needs to shorter than 5 characters']
+        select: false
+        // minLength: [2, 'Password needs to longer than 2 characters'],
+        // maxLength: [4, 'Password needs to shorter than 5 characters']
         // validate: {
         //   validator: function (val: string) {
         //     Log.warn(`password this ${this}`);
@@ -49,6 +49,8 @@ const userSchema = new mongoose_1.Schema({
 const hashPassword = (password, salt) => __awaiter(void 0, void 0, void 0, function* () { return crypto_1.default.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`); });
 exports.hashPassword = hashPassword;
 userSchema.static('hashPassword', exports.hashPassword);
+// create user with typescript validation.
+userSchema.static('build', (attrs) => new exports.Auth(attrs));
 userSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         this.password = yield (0, exports.hashPassword)(this.password, config_1.config.password.salt);

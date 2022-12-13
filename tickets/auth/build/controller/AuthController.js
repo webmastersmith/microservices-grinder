@@ -24,7 +24,8 @@ function signIn(req, res, next) {
             throw new Error('email and password are required.');
         // throw new DatabaseError(httpStatusCodes.BAD_REQUEST);
         // throw new Error('my bad!');
-        const me = yield AuthSchema_1.Auth.create({ email, password });
+        const me = yield AuthSchema_1.Auth.build({ email, password });
+        // const me2 = await CreateUser({ email, password }).save();
         Logging_1.default.info(me);
         res.status(200).json({ data: { email, password }, msg: 'Email Password Success!' });
     });
