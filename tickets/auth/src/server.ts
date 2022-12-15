@@ -2,7 +2,7 @@ import express, { Application, NextFunction, Request, Response, Router } from 'e
 import 'express-async-errors';
 import 'dotenv/config';
 import chalk from 'chalk';
-import usersRouter from './routes/users';
+import usersRouter from './routes/AuthRoutes';
 import { errorHandler, RouteError, DatabaseError, httpStatusCodes } from './errors';
 import mongoose from 'mongoose';
 import Log from './library/Logging';

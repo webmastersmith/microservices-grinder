@@ -16,7 +16,7 @@ const express_1 = __importDefault(require("express"));
 require("express-async-errors");
 require("dotenv/config");
 const chalk_1 = __importDefault(require("chalk"));
-const users_1 = __importDefault(require("./routes/users"));
+const AuthRoutes_1 = __importDefault(require("./routes/AuthRoutes"));
 const errors_1 = require("./errors");
 const mongoose_1 = __importDefault(require("mongoose"));
 const Logging_1 = __importDefault(require("./library/Logging"));
@@ -67,7 +67,7 @@ function StartServer() {
         });
         /** Routes */
         // all routes use this
-        app.use('/api/v1/users', use(users_1.default));
+        app.use('/api/v1/users', use(AuthRoutes_1.default));
         /** HealthCheck */
         app.get('/ping', (req, res, next) => {
             res.status(200).json({ message: 'pong' });

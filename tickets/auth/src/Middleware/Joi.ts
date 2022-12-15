@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserType } from '../model/AuthSchema';
+import { IUser } from '../model/AuthSchema';
 import Joi, { ObjectSchema, ValidationError } from 'joi';
 import { JoiValidationError } from '../errors';
 
@@ -22,13 +22,13 @@ export const ValidateSchema = (schema: ObjectSchema) => {
 // create object with joy methods
 export const Schema = {
   user: {
-    create: Joi.object<UserType>({
+    create: Joi.object<IUser>({
       email: Joi.string().required().email(),
       password: Joi.string()
         .required()
         .regex(/^[a-zA-Z0-9]{2,5}$/i)
     }),
-    update: Joi.object<UserType>({
+    update: Joi.object<IUser>({
       email: Joi.string().email(),
       password: Joi.string().regex(/^[a-zA-Z0-9]{2,5}$/i)
     })

@@ -1,0 +1,15 @@
+{
+  "bsonType": "object",
+  "description": "Email and password for sign up",
+  "required": ["email, password"],
+  "properties": {
+    "email": {
+      "bsonType": "string",
+      "description": "Email must be a string and is required"
+    },
+    "password": {
+      "bsonType": "string",
+      "description": "Password must be a string and is required"
+    }
+  }
+}

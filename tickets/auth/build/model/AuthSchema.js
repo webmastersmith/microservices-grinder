@@ -8,14 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Auth = exports.hashPassword = void 0;
+exports.Auth = void 0;
 const mongoose_1 = require("mongoose");
-const crypto_1 = __importDefault(require("crypto"));
-const config_1 = require("../config");
+// import crypto from 'crypto';
+// import { config } from '../config';
+const Auth_1 = require("../library/Auth");
 const userSchema = new mongoose_1.Schema({
     email: {
         type: String,
@@ -45,15 +43,31 @@ const userSchema = new mongoose_1.Schema({
         //   message: (props: { value: string }) => `${props.value} can only contain numbers and letters.`
         // }
     }
+}
+// {
+//   // you must add this in to see virtuals on results for all.
+//   toJSON: { virtuals: true },
+//   toObject: { virtuals: true }
+// }
+);
+// export const hashPassword = async (password: string, salt: string) => crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
+// Virtuals -'this' must use function keyword.
+userSchema.virtual('fullName').get(function () {
+    return this.email + ' ' + this.password;
 });
-const hashPassword = (password, salt) => __awaiter(void 0, void 0, void 0, function* () { return crypto_1.default.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`); });
-exports.hashPassword = hashPassword;
-userSchema.static('hashPassword', exports.hashPassword);
-// create user with typescript validation.
+// Document Methods
+userSchema.method('details', function () {
+    return this.email + this.password;
+});
+// Model Methods
+userSchema.static('hashPassword', Auth_1.Password.hash);
+userSchema.static('checkPassword', Auth_1.Password.check);
+// 'build' create's user with typescript validation.
 userSchema.static('build', (attrs) => new exports.Auth(attrs));
+// Document Middleware 'pre', 'post'.
 userSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
-        this.password = yield (0, exports.hashPassword)(this.password, config_1.config.password.salt);
+        this.set('password', yield Auth_1.Password.hash(this.get('password')));
         return next();
     });
 });

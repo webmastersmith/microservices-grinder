@@ -18,25 +18,22 @@ const AuthSchema_1 = require("../model/AuthSchema");
 const Logging_1 = __importDefault(require("../library/Logging"));
 function signIn(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        // data is validated through mongoose.
-        const { email, password } = req.body;
-        if (!email || !password)
-            throw new Error('email and password are required.');
+        // valid user
+        // if (!email || !password) throw new Error('email and password are required.');
         // throw new DatabaseError(httpStatusCodes.BAD_REQUEST);
         // throw new Error('my bad!');
-        const me = yield AuthSchema_1.Auth.build({ email, password });
+        // Log.warn(me);
         // const me2 = await CreateUser({ email, password }).save();
-        Logging_1.default.info(me);
-        res.status(200).json({ data: { email, password }, msg: 'Email Password Success!' });
+        Logging_1.default.warn(req.body.user, __filename, signIn.name);
+        res.status(200).json(req.body.user);
     });
 }
 exports.signIn = signIn;
 function signUp(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { email, password } = req.body;
-        if (!email || !password)
-            return res.status(400).json({ data: 'please provide email and password' });
-        res.status(200).json({ data: { email, password }, msg: 'Email Password Success!' });
+        const user = yield AuthSchema_1.Auth.create(req.body);
+        Logging_1.default.warn(user, __filename, signUp.name);
+        res.status(200).json(user);
     });
 }
 exports.signUp = signUp;
@@ -54,7 +51,9 @@ function currentUser(req, res, next) {
         // const { email, password } = req.body;
         // if (!email || !password)
         //   return res.status(400).json({ data: 'please provide email and password' });
-        res.status(200).json({ data: { user: {} }, msg: 'Current User' });
+        const user = yield AuthSchema_1.Auth.findById('6398f65b0e30b4b9e8a52f25');
+        Logging_1.default.warn(user);
+        res.status(200).json(user);
     });
 }
 exports.currentUser = currentUser;
