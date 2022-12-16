@@ -1,4 +1,5 @@
-import express, { Application, NextFunction, Request, Response, Router } from 'express';
+import express, { application, Application, NextFunction, Request, Response, Router } from 'express';
+import cookieSession from 'cookie-session';
 import 'express-async-errors';
 import 'dotenv/config';
 import chalk from 'chalk';
@@ -7,19 +8,22 @@ import { errorHandler, RouteError, DatabaseError, httpStatusCodes } from './erro
 import mongoose from 'mongoose';
 import Log from './library/Logging';
 import { config } from './config';
+
 const app: Application = express();
+app.set('trust proxy', true); // for the load balancer. look at first x-forwarded item to get sender.
 const port = 4000;
 
 /** Connect to Mongo */
 mongoose.set('strictQuery', false);
 mongoose
   .connect(
-    // `mongodb://root:password@mongo-svc:27017`
-    `mongodb://${config.mongo.user}:${config.mongo.password}@localhost:27017/AuthDB`,
+    // `mongodb://${config.mongo.user}:${config.mongo.password}@mongo-svc:27017/AuthDB`,
+    // `mongodb://${config.mongo.user}:${config.mongo.password}@localhost:27017/AuthDB`,
+    `mongodb://${config.mongo.user}:${config.mongo.password}@172.30.71.94:27017/AuthDB`,
     { authSource: 'admin', w: 'majority', retryWrites: true }
   )
   .then(() => {
-    Log.info('Connected to MongoDB!!!');
+    Log.info('Connected to MongoDB!!!!');
     StartServer();
   })
   .catch((e) => {
@@ -50,6 +54,13 @@ async function StartServer() {
 
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
+
+  app.use(
+    cookieSession({
+      signed: false,
+      secure: config.dev.env === 'production' ? true : false
+    })
+  );
 
   /** Rules of API */
   app.use((req, res, next) => {

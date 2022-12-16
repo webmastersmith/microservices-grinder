@@ -20,6 +20,12 @@ spec:
           image: bryonsmith/auth:latest # name of local/docker hub image.
           # ports:
           # - containerPort: 4001 # connect pod port 4000 to nodePort.
+          env:
+            - name: JWT_SECRET # the name used in the env file.
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret # name of Secret.metadata.name
+                  key: jwt # Secret.data.key = mongo-root-username
           resources: # restrict resources.
             requests:
               memory: '64Mi' # At least 64Mi (Mi = Megabytes, Gi = Gigabytes).

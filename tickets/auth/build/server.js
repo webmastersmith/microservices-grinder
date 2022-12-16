@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const cookie_session_1 = __importDefault(require("cookie-session"));
 require("express-async-errors");
 require("dotenv/config");
 const chalk_1 = __importDefault(require("chalk"));
@@ -22,6 +23,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const Logging_1 = __importDefault(require("./library/Logging"));
 const config_1 = require("./config");
 const app = (0, express_1.default)();
+app.set('trust proxy', true); // for the load balancer. look at first x-forwarded item to get sender.
 const port = 4000;
 /** Connect to Mongo */
 mongoose_1.default.set('strictQuery', false);
@@ -55,6 +57,10 @@ function StartServer() {
         });
         app.use(express_1.default.urlencoded({ extended: true }));
         app.use(express_1.default.json());
+        app.use((0, cookie_session_1.default)({
+            signed: false,
+            secure: config_1.config.dev.env === 'production' ? true : false
+        }));
         /** Rules of API */
         app.use((req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*');

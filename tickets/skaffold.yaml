@@ -12,6 +12,7 @@ build:
         dockerfile: Dockerfile
 manifests:
   rawYaml:
+    - infra/k8s/secrets.yaml
     - infra/k8s/auth-depl.yaml
     - infra/k8s/ingress.svc.yaml
-    - infra/k8s/mongo-depl.yaml
+    # - infra/k8s/mongo-depl.yaml # start cluster with docker compose up -d

@@ -13,9 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.currentUser = exports.signOut = exports.signUp = exports.signIn = void 0;
-require("dotenv/config");
+// import { validationResult, ValidationError } from 'express-validator';
+// import { RequestValidationError, DatabaseError, httpStatusCodes, AjvValidationError } from '../errors';
 const AuthSchema_1 = require("../model/AuthSchema");
 const Logging_1 = __importDefault(require("../library/Logging"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const config_1 = require("../config");
 function signIn(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         // valid user
@@ -32,7 +35,14 @@ exports.signIn = signIn;
 function signUp(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const user = yield AuthSchema_1.Auth.create(req.body);
-        Logging_1.default.warn(user, __filename, signUp.name);
+        // create jwt
+        const signedJwt = jsonwebtoken_1.default.sign({ email: user.email, id: user.id }, config_1.config.jwt.secret, { expiresIn: Date.now() + 10 * 60 * 1000 });
+        // store on the session object (cookie)
+        Logging_1.default.warn(signedJwt, __filename, signUp.name);
+        req.session = {
+            jwt: signedJwt
+        };
+        // Log.warn(user, __filename, signUp.name);
         res.status(200).json(user);
     });
 }

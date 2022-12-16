@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import 'dotenv/config';
-import { validationResult, ValidationError } from 'express-validator';
-import { RequestValidationError, DatabaseError, httpStatusCodes, AjvValidationError } from '../errors';
+// import { validationResult, ValidationError } from 'express-validator';
+// import { RequestValidationError, DatabaseError, httpStatusCodes, AjvValidationError } from '../errors';
 import { Auth, IUser, IUserDocument } from '../model/AuthSchema';
 import Log from '../library/Logging';
+import jwt from 'jsonwebtoken';
+import { config } from '../config';
 
 export async function signIn(req: Request, res: Response, next: NextFunction) {
   // valid user
@@ -20,7 +21,15 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
 
 export async function signUp(req: Request, res: Response, next: NextFunction) {
   const user = await Auth.create(req.body);
-  Log.warn(user, __filename, signUp.name);
+  // create jwt
+  const signedJwt = jwt.sign({ email: user.email, id: user.id }, config.jwt.secret, { expiresIn: Date.now() + 10 * 60 * 1000 });
+  // store on the session object (cookie)
+  Log.warn(signedJwt, __filename, signUp.name);
+  req.session = {
+    jwt: signedJwt
+  };
+
+  // Log.warn(user, __filename, signUp.name);
   res.status(200).json(user);
 }
 

@@ -20,9 +20,20 @@ spec:
           image: mongo # name of local/docker hub image.
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret # name of Secret.metadata.name
+                  key: mongo-user # Secret.data.key = mongo-root-username
             - name: MONGO_INITDB_ROOT_PASSWORD
-              value: password
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret # name of Secret.metadata.name
+                  key: mongo-password # Secret.data.key = mongo-root-username
+            - name: JWT_SECRET # the name used in the env file.
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret # name of Secret.metadata.name
+                  key: jwt # Secret.data.key = mongo-root-username
           # ports:
           # - containerPort: 4001 # connect pod port 4000 to nodePort.
 ---
