@@ -29,10 +29,12 @@ const port = 4000;
 mongoose_1.default.set('strictQuery', false);
 mongoose_1.default
     .connect(
-// `mongodb://root:password@mongo-svc:27017`
-`mongodb://${config_1.config.mongo.user}:${config_1.config.mongo.password}@localhost:27017/AuthDB`, { authSource: 'admin', w: 'majority', retryWrites: true })
+// `mongodb://${config.mongo.user}:${config.mongo.password}@mongo-svc:27017/AuthDB`,
+`mongodb://${config_1.config.mongo.user}:${config_1.config.mongo.password}@localhost:27017/AuthDB`, 
+// `mongodb://${config.mongo.user}:${config.mongo.password}@172.30.71.94:27017/AuthDB`,
+{ authSource: 'admin', w: 'majority', retryWrites: true })
     .then(() => {
-    Logging_1.default.info('Connected to MongoDB!!!');
+    Logging_1.default.info('Connected to MongoDB!!!!');
     StartServer();
 })
     .catch((e) => {

@@ -3,6 +3,8 @@ import { isNumberObject } from 'util/types';
 // import crypto from 'crypto';
 // import { config } from '../config';
 import { Password } from '../library/Auth';
+import validator from 'validator';
+import Log from '../library/Logging';
 
 export interface IUser {
   _id: Types.ObjectId;
@@ -20,6 +22,7 @@ export interface IUserDocument {
 export interface IUserModel extends Model<IUser, {}, IUserDocument> {
   hashPassword: (pw: string) => Promise<string>;
   checkPassword: (hash: string, salt?: string) => Promise<boolean>;
+  signJwt: (user: { email: string; id: string }) => string;
   build(attrs: IUser): Promise<HydratedDocument<IUser, IUserDocument>>;
 }
 
@@ -29,29 +32,29 @@ const userSchema = new Schema<IUser, IUserModel, IUserDocument>(
       type: String,
       required: [true, 'Email is required.'],
       unique: true,
-      lowercase: true
-      // maxLength: [40, 'Email cannot be over 40 characters.'],
-      // minLength: [3, 'Valid email cannot be less than 3 characters.'],
-      // validate: {
-      //   validator: (email: string) => validator.isEmail(email),
-      //   message: (props: { value: string }) => `${props.value} is not a valid email.`
-      // }
+      lowercase: true,
+      maxLength: [40, 'Email cannot be over 40 characters.'],
+      minLength: [3, 'Valid email cannot be less than 3 characters.'],
+      validate: {
+        validator: (email: string) => validator.isEmail(email),
+        message: (props: { value: string }) => `${props.value} is not a valid email.`
+      }
     },
     password: {
       type: String,
       required: [true, 'Password is required.'],
-      select: false
-      // minLength: [2, 'Password needs to longer than 2 characters'],
-      // maxLength: [4, 'Password needs to shorter than 5 characters']
-      // validate: {
-      //   validator: function (val: string) {
-      //     Log.warn(`password this ${this}`);
-      //     Log.warn(`value passed to function ${val}`);
-      //     // (this) // logs 'tourSchema' object
-      //     return validator.isAlphanumeric(val, 'en-US', { ignore: ' ' });
-      //   },
-      //   message: (props: { value: string }) => `${props.value} can only contain numbers and letters.`
-      // }
+      select: false,
+      minLength: [2, 'Password needs to longer than 2 characters'],
+      maxLength: [4, 'Password needs to shorter than 5 characters'],
+      validate: {
+        validator: function (val: string) {
+          Log.warn(`password this ${this}`);
+          Log.warn(`value passed to function ${val}`);
+          // (this) // logs 'tourSchema' object
+          return validator.isAlphanumeric(val, 'en-US', { ignore: ' ' });
+        },
+        message: (props: { value: string }) => `${props.value} can only contain numbers and letters.`
+      }
     }
   }
   // {
@@ -76,6 +79,7 @@ userSchema.method('details', function () {
 // Model Methods
 userSchema.static('hashPassword', Password.hash);
 userSchema.static('checkPassword', Password.check);
+userSchema.static('signJwt', Password.signJwt);
 // 'build' create's user with typescript validation.
 userSchema.static('build', (attrs: IUser) => new Auth(attrs));
 

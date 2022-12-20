@@ -18,8 +18,8 @@ mongoose.set('strictQuery', false);
 mongoose
   .connect(
     // `mongodb://${config.mongo.user}:${config.mongo.password}@mongo-svc:27017/AuthDB`,
-    // `mongodb://${config.mongo.user}:${config.mongo.password}@localhost:27017/AuthDB`,
-    `mongodb://${config.mongo.user}:${config.mongo.password}@172.30.71.94:27017/AuthDB`,
+    `mongodb://${config.mongo.user}:${config.mongo.password}@localhost:27017/AuthDB`,
+    // `mongodb://${config.mongo.user}:${config.mongo.password}@172.30.71.94:27017/AuthDB`,
     { authSource: 'admin', w: 'majority', retryWrites: true }
   )
   .then(() => {

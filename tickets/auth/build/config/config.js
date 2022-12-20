@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = void 0;
 require("dotenv/config");
 const SALT = process.env.SALT || '';
-const MONGO_USER = process.env.MONGO_USER || '';
-const MONGO_PASSWORD = process.env.MONGO_PASSWORD || '';
+const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || '';
+const MONGO_PASSWORD = process.env.MONGO_INITDB_ROOT_PASSWORD || '';
 const JWT_SECRET = process.env.JWT_SECRET || '';
 const DEV = process.env.NODE_ENV || 'production';
 exports.config = {

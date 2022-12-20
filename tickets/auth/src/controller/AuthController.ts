@@ -20,9 +20,11 @@ export async function signIn(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function signUp(req: Request, res: Response, next: NextFunction) {
+  // wait for index's to build before creating item.
+  await Auth.init();
   const user = await Auth.create(req.body);
   // create jwt
-  const signedJwt = jwt.sign({ email: user.email, id: user.id }, config.jwt.secret, { expiresIn: Date.now() + 10 * 60 * 1000 });
+  const signedJwt = Auth.signJwt(user);
   // store on the session object (cookie)
   Log.warn(signedJwt, __filename, signUp.name);
   req.session = {
@@ -38,13 +40,4 @@ export async function signOut(req: Request, res: Response, next: NextFunction) {
   // if (!email || !password)
   //   return res.status(400).json({ data: 'please provide email and password' });
   res.status(200).json({ data: {}, msg: 'Sign out successful!' });
-}
-
-export async function currentUser(req: Request, res: Response, next: NextFunction) {
-  // const { email, password } = req.body;
-  // if (!email || !password)
-  //   return res.status(400).json({ data: 'please provide email and password' });
-  const user = await Auth.findById('6398f65b0e30b4b9e8a52f25');
-  Log.warn(user);
-  res.status(200).json(user);
 }
