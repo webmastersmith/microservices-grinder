@@ -23,6 +23,7 @@ export interface IUserModel extends Model<IUser, {}, IUserDocument> {
   hashPassword: (pw: string) => Promise<string>;
   checkPassword: (hash: string, salt?: string) => Promise<boolean>;
   signJwt: (user: { email: string; id: string }) => string;
+  valid: (reqBody: { [key: string]: string }, keys: string[]) => Promise<Error | undefined>;
   build(attrs: IUser): Promise<HydratedDocument<IUser, IUserDocument>>;
 }
 
@@ -48,8 +49,8 @@ const userSchema = new Schema<IUser, IUserModel, IUserDocument>(
       maxLength: [4, 'Password needs to shorter than 5 characters'],
       validate: {
         validator: function (val: string) {
-          Log.warn(`password this ${this}`);
-          Log.warn(`value passed to function ${val}`);
+          // Log.warn(`password this ${JSON.stringify(this, null, 2)}`);
+          // Log.warn(`value passed to function ${val}`);
           // (this) // logs 'tourSchema' object
           return validator.isAlphanumeric(val, 'en-US', { ignore: ' ' });
         },
@@ -80,6 +81,8 @@ userSchema.method('details', function () {
 userSchema.static('hashPassword', Password.hash);
 userSchema.static('checkPassword', Password.check);
 userSchema.static('signJwt', Password.signJwt);
+userSchema.static('valid', Password.valid);
+
 // 'build' create's user with typescript validation.
 userSchema.static('build', (attrs: IUser) => new Auth(attrs));
 

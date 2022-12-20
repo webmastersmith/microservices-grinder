@@ -30,6 +30,12 @@ export class Password {
   static signJwt(user: { email: string; id: string }) {
     return JWT.sign({ email: user.email, id: user.id }, config.jwt.secret, { expiresIn: '2h' });
   }
+  static async valid(reqBody: { [key: string]: string }, keys: string[]) {
+    if (Object.keys(reqBody).length !== keys.length)
+      throw new Error('request has wrong amount of arguments on body.');
+    await Auth.validate(reqBody, keys);
+    return;
+  }
 }
 
 interface JWT_Type {
@@ -52,8 +58,8 @@ export async function protect(req: Request, res: Response, next: NextFunction) {
     // session token missing, sign in by email and password.
   } else {
     // data is validated through mongoose.
+    await Auth.valid(req.body, ['email', 'password']);
     const { email, password } = req.body;
-    await Auth.validate({ email, password }, ['email', 'password']);
     // if session cookie found, user is already on body.
     // find user id
     user = await Auth.findOne({ email }, 'email +password').exec();

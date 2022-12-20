@@ -48,6 +48,14 @@ class Password {
     static signJwt(user) {
         return jsonwebtoken_1.default.sign({ email: user.email, id: user.id }, config_1.config.jwt.secret, { expiresIn: '2h' });
     }
+    static valid(reqBody, keys) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (Object.keys(reqBody).length !== keys.length)
+                throw new Error('request has wrong amount of arguments on body.');
+            yield AuthSchema_1.Auth.validate(reqBody, keys);
+            return;
+        });
+    }
 }
 exports.Password = Password;
 function protect(req, res, next) {
@@ -66,8 +74,8 @@ function protect(req, res, next) {
         }
         else {
             // data is validated through mongoose.
+            yield AuthSchema_1.Auth.valid(req.body, ['email', 'password']);
             const { email, password } = req.body;
-            yield AuthSchema_1.Auth.validate({ email, password }, ['email', 'password']);
             // if session cookie found, user is already on body.
             // find user id
             user = yield AuthSchema_1.Auth.findOne({ email }, 'email +password').exec();

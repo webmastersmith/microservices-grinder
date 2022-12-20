@@ -13,7 +13,7 @@ const Auth_1 = require("../library/Auth");
 const router = express_1.default.Router();
 // http://tickets.prod/api/v1/users/signin
 // Auth
-router.route('/signin').post((0, Joi_1.ValidateSchema)(Joi_1.Schema.user.create), Auth_1.protect, AuthController_1.signIn);
+router.route('/signin').post(Auth_1.protect, AuthController_1.signIn);
 router.route('/signup').post((0, Joi_1.ValidateSchema)(Joi_1.Schema.user.create), AuthController_1.signUp);
 router.route('/signout').post(AuthController_1.signOut);
 // User

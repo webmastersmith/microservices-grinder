@@ -18,7 +18,6 @@ const mongoose_1 = require("mongoose");
 // import { config } from '../config';
 const Auth_1 = require("../library/Auth");
 const validator_1 = __importDefault(require("validator"));
-const Logging_1 = __importDefault(require("../library/Logging"));
 const userSchema = new mongoose_1.Schema({
     email: {
         type: String,
@@ -40,8 +39,8 @@ const userSchema = new mongoose_1.Schema({
         maxLength: [4, 'Password needs to shorter than 5 characters'],
         validate: {
             validator: function (val) {
-                Logging_1.default.warn(`password this ${this}`);
-                Logging_1.default.warn(`value passed to function ${val}`);
+                // Log.warn(`password this ${JSON.stringify(this, null, 2)}`);
+                // Log.warn(`value passed to function ${val}`);
                 // (this) // logs 'tourSchema' object
                 return validator_1.default.isAlphanumeric(val, 'en-US', { ignore: ' ' });
             },
@@ -68,6 +67,7 @@ userSchema.method('details', function () {
 userSchema.static('hashPassword', Auth_1.Password.hash);
 userSchema.static('checkPassword', Auth_1.Password.check);
 userSchema.static('signJwt', Auth_1.Password.signJwt);
+userSchema.static('valid', Auth_1.Password.valid);
 // 'build' create's user with typescript validation.
 userSchema.static('build', (attrs) => new exports.Auth(attrs));
 // Document Middleware 'pre', 'post'.

@@ -9,7 +9,7 @@ import { protect } from '../library/Auth';
 const router = express.Router();
 // http://tickets.prod/api/v1/users/signin
 // Auth
-router.route('/signin').post(ValidateSchema(Schema.user.create), protect, signIn);
+router.route('/signin').post(protect, signIn);
 router.route('/signup').post(ValidateSchema(Schema.user.create), signUp);
 router.route('/signout').post(signOut);
 // User
